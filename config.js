@@ -1,32 +1,28 @@
 /**
- * Selectors and settings - CUSTOMIZE THESE for your app.
- * Use browser DevTools (F12) to inspect elements and copy selectors.
+ * Selectors and settings - from Playwright codegen.
+ * Format: { role: 'textbox', name: 'X' } or { role: 'button', name: 'Y' } for getByRole,
+ * or { css: 'selector' } for page.locator().
  */
 
 export const config = {
-  // Page selectors - update these to match your app's HTML
   selectors: {
-    // Login form (when presented)
-    usernameInput: 'input[name="username"], input[id="username"], input[type="text"]',
-    passwordInput: 'input[name="password"], input[id="password"], input[type="password"]',
-    loginButton: 'button[type="submit"], input[type="submit"], button:has-text("Log in")',
+    // Microsoft OAuth login (email + Next, then MFA on your phone)
+    emailInput: { role: "textbox", name: "Enter your email, phone, or" },
+    nextButton: { role: "button", name: "Next" },
 
-    // Search / lookup form
-    loadRecordInput: 'input[name="loadRecord"], input[id="loadRecord"], input:first-of-type',
-    itemNumInput: 'input[name="itemNum"], input[id="itemNum"], input:nth-of-type(2)',
+    // App form (item/add page)
+    loadRecordInput: { role: "textbox", name: "Load Number" },
+    itemNumInput: { role: "textbox", name: "Item Number" },
+    priceField: { css: '[id=":r3t:"]' }, // MUI ID - may change; run codegen again if broken
+    saveButton: { role: "button", name: "Save" },
 
-    // After item loads - the Price field to make trivial change
-    priceField: 'input[name="price"], input[id="price"], [data-field="price"] input',
-
-    // Save button
-    saveButton: 'button:has-text("Save"), input[type="submit"][value="Save"], [data-action="save"]',
-
-    // Error toast (MUI Alert) - if visible after Save, indicates failure
-    errorToast: '.MuiAlert-message',
+    // Error toast (MUI Alert)
+    errorToast: { css: ".MuiAlert-message" },
   },
 
-  // Timeouts (milliseconds)
   timeout: 30000,
-  networkIdleWait: 2000, // Extra wait after network idle
-  postSaveWait: 5000, // Wait after Save before checking for error toast
+  networkIdleWait: 2000,
+  postSaveWait: 5000,
+  mfaWaitTimeout: 120000, // 2 min to complete Authenticator on phone
+  maxRetries: 2, // Retries per row when Save fails (error toast)
 };

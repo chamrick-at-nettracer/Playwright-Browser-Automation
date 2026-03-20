@@ -9,7 +9,7 @@
  * - Makes a trivial change (price +1 cent, then back) to enable Save
  * - Clicks Save
  * - Waits 5 seconds and checks for error toast (.MuiAlert-message)
- * - Retries up to 5 times if error detected
+ * - Retries up to maxRetries (default 2) if Save fails
  * - Saves checkpoint after each row for resume support
  *
  * Press Ctrl+C to gracefully stop after the current row completes.
@@ -112,24 +112,37 @@ if (rowsToProcess.length === 0) {
 console.log(`Processing rows ${startIndex + 1}–${startIndex + rowsToProcess.length} from ${csvPath}`);
 
 // --- Helpers ---
+function loc(page, sel) {
+  const s = Array.isArray(sel) ? sel[0] : sel;
+  if (typeof s === 'string') return page.locator(s).first();
+  if (s?.css) return page.locator(s.css).first();
+  if (s?.role) return page.getByRole(s.role, s.name ? { name: s.name } : {}).first();
+  return page.locator(s).first();
+}
+
 function getItemNumber(row) {
   return row['Item Number']?.trim() || row['Item Num']?.trim();
 }
 
 async function maybeLogin(page) {
-  const loginBtn = page.locator(config.selectors.loginButton).first();
-  if (await loginBtn.isVisible().catch(() => false)) {
-    console.log('  Login screen detected, logging in...');
-    await page.fill(config.selectors.usernameInput, credentials.username);
-    await page.fill(config.selectors.passwordInput, credentials.password);
-    await loginBtn.click();
-    await page.waitForLoadState('networkidle', { timeout: config.timeout }).catch(() => {});
+  const emailInput = loc(page, config.selectors.emailInput);
+  if (await emailInput.isVisible().catch(() => false)) {
+    console.log('  Microsoft login detected. Entering email, then waiting for MFA on your phone...');
+    await emailInput.fill(credentials.username);
+    await loc(page, config.selectors.nextButton).click();
+
+    // Wait for you to complete Authenticator (number + Yes + PIN) — up to mfaWaitTimeout
+    const loadRecordField = loc(page, config.selectors.loadRecordInput);
+    await loadRecordField.waitFor({
+      state: 'visible',
+      timeout: config.mfaWaitTimeout ?? 120000,
+    });
+    console.log('  MFA complete, on app.');
   }
 }
 
 async function hasErrorToast(page) {
-  const toast = page.locator(config.selectors.errorToast).first();
-  return toast.isVisible().catch(() => false);
+  return loc(page, config.selectors.errorToast).isVisible().catch(() => false);
 }
 
 async function doOneAttempt(page, row, index) {
@@ -144,13 +157,13 @@ async function doOneAttempt(page, row, index) {
   await maybeLogin(page);
 
   // Enter Load Record
-  const firstInput = page.locator(config.selectors.loadRecordInput).first();
+  const firstInput = loc(page, config.selectors.loadRecordInput);
   await firstInput.waitFor({ state: 'visible', timeout: config.timeout });
   await firstInput.fill(loadRecord);
   await firstInput.press('Tab');
 
   // Enter Item Number
-  const itemInput = page.locator(config.selectors.itemNumInput).first();
+  const itemInput = loc(page, config.selectors.itemNumInput);
   await itemInput.waitFor({ state: 'visible', timeout: config.timeout });
   await itemInput.fill(itemNumber);
   await itemInput.press('Enter');
@@ -160,7 +173,7 @@ async function doOneAttempt(page, row, index) {
   await new Promise((r) => setTimeout(r, config.networkIdleWait));
 
   // Make trivial change to Price
-  const priceLoc = page.locator(config.selectors.priceField).first();
+  const priceLoc = loc(page, config.selectors.priceField);
   if (await priceLoc.isVisible().catch(() => false)) {
     const currentPrice = await priceLoc.inputValue();
     const num = parseFloat(currentPrice.replace(/[^0-9.-]/g, '')) || 0;
@@ -170,8 +183,7 @@ async function doOneAttempt(page, row, index) {
   }
 
   // Save
-  const saveBtn = page.locator(config.selectors.saveButton).first();
-  await saveBtn.click();
+  await loc(page, config.selectors.saveButton).click();
   await page.waitForLoadState('networkidle', { timeout: config.timeout }).catch(() => {});
 
   // Wait for error toast check
@@ -186,7 +198,7 @@ async function processRow(page, row, globalIndex) {
     return { success: false, skipped: true };
   }
 
-  const maxTries = 5;
+  const maxTries = config.maxRetries ?? 2;
   for (let tryNum = 1; tryNum <= maxTries; tryNum++) {
     try {
       await doOneAttempt(page, row, globalIndex);
@@ -253,7 +265,7 @@ async function main() {
           rowIndex: globalIndex,
           loadRecord: row['Load Record'],
           itemNumber: getItemNumber(row),
-          tries: 5,
+          tries: maxTries,
         });
         progressData.lastCompletedRowIndex = globalIndex;
       }

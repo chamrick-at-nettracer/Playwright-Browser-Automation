@@ -7,7 +7,7 @@ This guide walks you through setting up and running the automation that processe
 ## Prerequisites
 
 - **Node.js** 18+ installed ([nodejs.org](https://nodejs.org))
-- Your app’s URL and login credentials (username/password)
+- Your app’s URL and Microsoft account email (login uses MFA via Authenticator app)
 
 ---
 
@@ -47,11 +47,13 @@ This installs Chromium. You can also run `npx playwright install` to install all
 
    ```json
    {
-     "url": "https://your-actual-app.example.com/items",
-     "username": "your-username",
-     "password": "your-password"
+     "url": "https://ops-ub.reunitus.com/item/add",
+     "username": "your-email@company.com",
+     "password": "unused-with-mfa"
    }
    ```
+
+   For this app, login uses **Microsoft Authenticator** (MFA). The script enters your email and clicks Next, then waits up to 2 minutes for you to complete the Authenticator prompt on your phone. `password` is not used.
 
 `credentials.json` is in `.gitignore`, so it will not be committed.
 
@@ -71,21 +73,18 @@ Use `sample-data.csv` for initial testing. The full data file is `rows-to-update
 
 ---
 
-## Step 5: Customize Selectors
+## Step 5: Customize Selectors (if needed)
 
-The automation needs to know which HTML elements to interact with. Edit **`config.js`** and set the selectors to match your app.
+The automation uses selectors defined in **`config.js`**. These are pre-configured for the OPS App from Playwright codegen.
 
-To find selectors:
+**To find or update selectors** (e.g. if the app changes):
 
-1. Open your app in a browser.
-2. Right‑click the element (e.g. the Load Record input) → **Inspect**.
-3. In DevTools, use the element’s attributes to build a selector:
-   - `input[name="loadRecord"]` if it has `name="loadRecord"`
-   - `input#loadRecord` if it has `id="loadRecord"`
-   - Or use Playwright’s role/locator suggestions in the Playwright Inspector.
+1. Run: `npx playwright codegen https://ops-ub.reunitus.com/item/add`
+2. Complete the flow (login, lookup item, edit Price, Save).
+3. Copy the generated locators from the Inspector and update `config.js`.
+4. Use `{ role: 'textbox', name: 'X' }` for role-based locators, or `{ css: 'selector' }` for CSS.
 
-Update each selector in `config.js` to match your app.
-
+The Price field uses an MUI-generated ID that may change; re-run codegen if it breaks.
 ---
 
 ## Step 6: Test With a Few Rows First
@@ -142,8 +141,8 @@ For each row in the CSV, the script:
 6. Makes a trivial change to the Price field (+$0.01, then restores the original)
 7. Clicks **Save**
 8. Waits 5 seconds and checks for an error toast (`.MuiAlert-message`)
-9. If error detected: retries the row (up to 5 tries)
-10. If 5 tries exhausted: records the row in `progress.json` as failed and continues
+9. If error detected: retries the row (default 2 tries; set `maxRetries` in `config.js`)
+10. If max tries exhausted: records the row in `progress.json` as failed and continues
 11. Saves progress to `progress.json` and appends to `progress.log`
 
 By default, the browser runs in **headed** mode (you see it). To run in the background, change `headless: false` to `headless: true` in `run-automation.js`.
@@ -175,7 +174,7 @@ By default, the browser runs in **headed** mode (you see it). To run in the back
 | "Missing credentials.json" | Copy `credentials.example.json` to `credentials.json` and fill in values |
 | "CSV file not found" | Ensure the file path is correct; use `--csv path/to/file.csv` |
 | Elements not found / wrong fields | Inspect your app and update selectors in `config.js` |
-| Login fails | Check `usernameInput`, `passwordInput`, `loginButton` in `config.js` |
+| Login / MFA fails | Check `emailInput`, `nextButton` in `config.js`; ensure MFA completes within `mfaWaitTimeout` |
 | Save doesn’t work | Verify `saveButton` and `priceField` selectors |
 | Page rerenders too fast/slow | Adjust `networkIdleWait` in `config.js` |
 
