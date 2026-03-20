@@ -125,9 +125,33 @@ function getItemNumber(row) {
 }
 
 async function maybeLogin(page) {
-  const emailInput = loc(page, config.selectors.emailInput);
-  if (await emailInput.isVisible().catch(() => false)) {
+  // Wait for redirect to Microsoft login; if no redirect, skip login
+  try {
+    await page.waitForURL(/login\.microsoftonline\.com/, { timeout: 10000 });
+  } catch {
+    return; // Not on Microsoft – already logged in or different flow
+  }
+
+  await new Promise((r) => setTimeout(r, 2000)); // Let the form render
+
+  const emailSelectors = Array.isArray(config.selectors.emailInput)
+    ? config.selectors.emailInput
+    : [config.selectors.emailInput];
+  let emailInput = null;
+  for (const sel of emailSelectors) {
+    const el = loc(page, sel);
+    if (await el.isVisible().catch(() => false)) {
+      emailInput = el;
+      break;
+    }
+  }
+  if (!emailInput) {
+    await loc(page, emailSelectors[0]).waitFor({ state: 'visible', timeout: 15000 });
+    emailInput = loc(page, emailSelectors[0]);
+  }
+  if (emailInput) {
     console.log('  Microsoft login detected. Entering email, then waiting for MFA on your phone...');
+    await emailInput.click();
     await emailInput.fill(credentials.username);
     await loc(page, config.selectors.nextButton).click();
 
@@ -153,7 +177,7 @@ async function doOneAttempt(page, row, index) {
   }
 
   // Ensure we're on the right page
-  await page.goto(credentials.url, { waitUntil: 'domcontentloaded', timeout: config.timeout });
+  await page.goto(credentials.url, { waitUntil: 'load', timeout: config.timeout });
   await maybeLogin(page);
 
   // Enter Load Record
@@ -257,15 +281,16 @@ async function main() {
         appendLog(`Row ${globalIndex + 1}: success (Load Record ${row['Load Record']}, Item ${getItemNumber(row)})`);
         progressData.lastCompletedRowIndex = globalIndex;
       } else {
+        const maxRetries = config.maxRetries ?? 2;
         appendLog(
-          `Row ${globalIndex + 1}: FAILED after 5 tries (Load Record ${row['Load Record']}, Item ${getItemNumber(row)})`
+          `Row ${globalIndex + 1}: FAILED after ${maxRetries} tries (Load Record ${row['Load Record']}, Item ${getItemNumber(row)})`
         );
         progressData.failedRows = progressData.failedRows || [];
         progressData.failedRows.push({
           rowIndex: globalIndex,
           loadRecord: row['Load Record'],
           itemNumber: getItemNumber(row),
-          tries: maxTries,
+          tries: maxRetries,
         });
         progressData.lastCompletedRowIndex = globalIndex;
       }

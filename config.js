@@ -7,7 +7,11 @@
 export const config = {
   selectors: {
     // Microsoft OAuth login (email + Next, then MFA on your phone)
-    emailInput: { role: "textbox", name: "Enter your email, phone, or" },
+    emailInput: [
+      { role: "textbox", name: "Enter your email, phone, or" },
+      { role: "textbox", name: "Email, phone, or Skype" },
+      { css: "input[type='email'], input[name='loginfmt']" },
+    ],
     nextButton: { role: "button", name: "Next" },
 
     // App form (item/add page)
@@ -20,9 +24,9 @@ export const config = {
     errorToast: { css: ".MuiAlert-message" },
   },
 
-  timeout: 30000,
+  timeout: 20000,
   networkIdleWait: 2000,
-  postSaveWait: 5000,
+  postSaveWait: 3000,
   mfaWaitTimeout: 120000, // 2 min to complete Authenticator on phone
-  maxRetries: 2, // Retries per row when Save fails (error toast)
+  maxRetries: 3, // Retries per row when Save fails (error toast)
 };
