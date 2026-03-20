@@ -4,8 +4,8 @@ Use this document to record the steps of a plan we agree on before implementatio
 
 **Conventions (avoid markdownlint MD024):**
 
-- Use **ODBC-style dates** (e.g. `2026-03-20 7:33 PM`), not month/year (e.g. "March 2025").
-- For recurring headings (Overview, Checklist, Step 1, etc.), append ` for [ODBC date]` to make each unique (e.g. `### Overview for 2026-03-20 7:33 PM`, `### Checklist for 2026-03-20 7:33 PM`).
+- Use **ODBC-style dates** (e.g. `2026-03-20 7:39 PM`), not month/year. Run `date` to get the current timestamp when adding new plans.
+- For recurring headings (Overview, Checklist, Step 1, etc.), append ` for [ODBC date]` to make each unique (e.g. `### Overview for 2026-03-20 7:39 PM`, `### Checklist for 2026-03-20 7:39 PM`).
 
 ---
 

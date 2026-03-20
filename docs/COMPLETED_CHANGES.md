@@ -2,7 +2,7 @@
 
 Check off items here as we implement planned changes. Copy the checklist from [PLANNED_CHANGES.md](./PLANNED_CHANGES.md) when starting a new plan.
 
-**Conventions:** Use ODBC-style dates (e.g. `2026-03-20 7:33 PM`), not month/year. See PLANNED_CHANGES for heading uniqueness rules (MD024).
+**Conventions:** Use ODBC-style dates. Run `date` to get the current timestamp when adding entries. See PLANNED_CHANGES for heading uniqueness rules (MD024).
 
 ---
 
