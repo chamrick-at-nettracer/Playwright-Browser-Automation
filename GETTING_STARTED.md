@@ -171,7 +171,7 @@ By default, the browser runs in **headed** mode (you see it). To run in the back
 ## Troubleshooting
 
 | Problem | What to check |
-|--------|---------------|
+| ------- | ------------- |
 | "Missing credentials.json" | Copy `credentials.example.json` to `credentials.json` and fill in values |
 | "CSV file not found" | Ensure the file path is correct; use `--csv path/to/file.csv` |
 | Elements not found / wrong fields | Inspect your app and update selectors in `config.js` |
