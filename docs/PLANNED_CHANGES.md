@@ -16,7 +16,7 @@ When we agree on a plan, add a section below with a date and checklist:
 
 ---
 
-## March 2025 Plan: Toast-Based Success/Failure Detection with Categorized Failures
+## March 2025 Plan: Toast-Based Success/Failure Detection with Categorized Failures (IMPLEMENTED)
 
 ### Overview
 

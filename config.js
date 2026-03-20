@@ -20,7 +20,7 @@ export const config = {
     priceField: { css: '[id=":r3t:"]' }, // MUI ID - may change; run codegen again if broken
     saveButton: { role: "button", name: "Save" },
 
-    // Error toast (MUI Alert)
+    // Toast message (MUI Alert - success or failure; text is read to classify)
     errorToast: { css: ".MuiAlert-message" },
   },
 
@@ -28,5 +28,17 @@ export const config = {
   networkIdleWait: 2000,
   postSaveWait: 3000,
   mfaWaitTimeout: 120000, // 2 min to complete Authenticator on phone
-  maxRetries: 3, // Retries per row when Save fails (error toast)
+  maxRetries: 3, // Max retries per row when Save fails and retryOnFail is true
+
+  // Toast-based success/failure detection
+  successToastRegExp: /successfully/i,
+  failureReasons: [
+    {
+      category: "missing or invalid required fields",
+      failureReasonRegExp: /^Please fix the following fields: /,
+      failureDetailsRegExp: /^Please fix the following fields: (.+)$/,
+      retryOnFail: false,
+    },
+    // Add more failure categories here as discovered
+  ],
 };

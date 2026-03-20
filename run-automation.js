@@ -8,8 +8,8 @@
  * - Waits for page to finish loading/rerendering
  * - Makes a trivial change (price +1 cent, then back) to enable Save
  * - Clicks Save
- * - Waits 5 seconds and checks for error toast (.MuiAlert-message)
- * - Retries up to maxRetries (default 2) if Save fails
+ * - Reads toast message; success = matches successToastRegExp, failure = categorized by failureReasons
+ * - Retries only when retryOnFail is true; unrecognized failures go to unrecognized-failures.log
  * - Saves checkpoint after each row for resume support
  *
  * Press Ctrl+C to gracefully stop after the current row completes.
@@ -47,6 +47,7 @@ process.on('SIGINT', () => {
 // --- Paths ---
 const PROGRESS_JSON = resolve(process.cwd(), 'progress.json');
 const PROGRESS_LOG = resolve(process.cwd(), 'progress.log');
+const UNRECOGNIZED_FAILURES_LOG = resolve(process.cwd(), 'unrecognized-failures.log');
 
 function loadProgress() {
   if (!existsSync(PROGRESS_JSON)) return null;
@@ -165,8 +166,49 @@ async function maybeLogin(page) {
   }
 }
 
-async function hasErrorToast(page) {
-  return loc(page, config.selectors.errorToast).isVisible().catch(() => false);
+async function getToastMessage(page) {
+  const toast = loc(page, config.selectors.errorToast);
+  if (!(await toast.isVisible().catch(() => false))) return null;
+  return toast.textContent().catch(() => null);
+}
+
+function classifyToastResult(message) {
+  if (message == null || String(message).trim() === '') {
+    return { type: 'none' };
+  }
+  const str = String(message).trim();
+  const successRegex = config.successToastRegExp ?? /successfully/i;
+  if (successRegex.test(str)) {
+    return { type: 'success' };
+  }
+  const reasons = config.failureReasons ?? [];
+  for (const r of reasons) {
+    const reasonRegex = r.failureReasonRegExp instanceof RegExp
+      ? r.failureReasonRegExp
+      : new RegExp(r.failureReasonRegExp);
+    if (reasonRegex.test(str)) {
+      let details = str;
+      if (r.failureDetailsRegExp) {
+        const detailsRegex = r.failureDetailsRegExp instanceof RegExp
+          ? r.failureDetailsRegExp
+          : new RegExp(r.failureDetailsRegExp);
+        const m = str.match(detailsRegex);
+        if (m && m[1]) details = m[1].trim();
+      }
+      return {
+        type: 'failure',
+        category: r.category,
+        details,
+        retryOnFail: !!r.retryOnFail,
+      };
+    }
+  }
+  return { type: 'unknown', message: str };
+}
+
+function logUnrecognizedFailure(row, globalIndex, message) {
+  const line = `[${new Date().toISOString()}] Row ${globalIndex + 1} (Load Record ${row['Load Record']}, Item ${getItemNumber(row)}): ${message}\n`;
+  appendFileSync(UNRECOGNIZED_FAILURES_LOG, line, 'utf-8');
 }
 
 async function doOneAttempt(page, row, index) {
@@ -223,29 +265,51 @@ async function processRow(page, row, globalIndex) {
   }
 
   const maxTries = config.maxRetries ?? 2;
-  for (let tryNum = 1; tryNum <= maxTries; tryNum++) {
+  let tryNum = 0;
+
+  while (true) {
+    tryNum++;
     try {
       await doOneAttempt(page, row, globalIndex);
-      const hasError = await hasErrorToast(page);
-      if (!hasError) {
+      const message = await getToastMessage(page);
+      const result = classifyToastResult(message);
+
+      if (result.type === 'success') {
         return { success: true };
       }
-      if (tryNum < maxTries) {
-        appendLog(
-          `Row ${globalIndex + 1} (try ${tryNum}/${maxTries}): Error toast detected, retrying...`
-        );
+
+      if (result.type === 'failure') {
+        if (result.retryOnFail && tryNum < maxTries) {
+          appendLog(
+            `Row ${globalIndex + 1} (try ${tryNum}/${maxTries}): ${result.category} - ${result.details}, retrying...`
+          );
+          continue;
+        }
+        return { success: false, category: result.category, details: result.details, tries: tryNum };
+      }
+
+      if (result.type === 'unknown' || result.type === 'none') {
+        if (result.type === 'unknown') {
+          logUnrecognizedFailure(row, globalIndex, result.message);
+        } else {
+          logUnrecognizedFailure(row, globalIndex, '(no toast message)');
+        }
+        return {
+          success: false,
+          category: 'unrecognized',
+          details: result.type === 'unknown' ? result.message : '(no toast)',
+          tries: tryNum,
+        };
       }
     } catch (err) {
       if (tryNum < maxTries) {
         appendLog(`Row ${globalIndex + 1} (try ${tryNum}/${maxTries}): ${err.message}, retrying...`);
       } else {
         appendLog(`Row ${globalIndex + 1}: FAILED after ${maxTries} tries (${err.message})`);
-        return { success: false, error: err.message };
+        return { success: false, category: 'exception', details: err.message, tries: tryNum };
       }
     }
   }
-
-  return { success: false, exhausted: true };
 }
 
 // --- Main ---
@@ -281,16 +345,19 @@ async function main() {
         appendLog(`Row ${globalIndex + 1}: success (Load Record ${row['Load Record']}, Item ${getItemNumber(row)})`);
         progressData.lastCompletedRowIndex = globalIndex;
       } else {
-        const maxRetries = config.maxRetries ?? 2;
+        const category = result.category ?? 'unknown';
+        const details = result.details ?? '';
         appendLog(
-          `Row ${globalIndex + 1}: FAILED after ${maxRetries} tries (Load Record ${row['Load Record']}, Item ${getItemNumber(row)})`
+          `Row ${globalIndex + 1}: FAILED (${category}) ${details} [Load Record ${row['Load Record']}, Item ${getItemNumber(row)}]`
         );
         progressData.failedRows = progressData.failedRows || [];
         progressData.failedRows.push({
           rowIndex: globalIndex,
           loadRecord: row['Load Record'],
           itemNumber: getItemNumber(row),
-          tries: maxRetries,
+          category,
+          details,
+          tries: result.tries ?? 1,
         });
         progressData.lastCompletedRowIndex = globalIndex;
       }

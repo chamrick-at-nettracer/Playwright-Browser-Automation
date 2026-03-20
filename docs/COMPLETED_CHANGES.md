@@ -21,6 +21,20 @@ These items reflect the state of the product as of the first release.
 
 ---
 
+## March 2025: Toast-Based Success/Failure Detection
+
+- [x] Step 1: Add config for successToastRegExp and failureReasons
+- [x] Step 2: Add getToastMessage() helper
+- [x] Step 3: Add classifyToastResult() helper
+- [x] Step 4: Add logUnrecognizedFailure() helper
+- [x] Step 5: Refactor processRow() retry and result logic
+- [x] Step 6: Update failure logging in main() and progress
+- [x] Step 7: Add unrecognized-failures.log to .gitignore
+- [x] Step 8: Update docs (PRD, GETTING_STARTED)
+- [x] Step 9: Add checklist to COMPLETED_CHANGES.md
+
+---
+
 ## Future Completed Changes
 
 _Add checkmarks here as we complete items from PLANNED_CHANGES.md._

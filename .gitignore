@@ -34,6 +34,7 @@ credentials.json
 # progress tracking (resume/restart)
 progress.json
 progress.log
+unrecognized-failures.log
 
 # vercel
 .vercel

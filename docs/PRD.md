@@ -55,28 +55,35 @@ For each row:
 6. Make trivial change to **Price** field: add $0.01, then restore original value
 7. Click **Save**
 8. Wait 5 seconds
-9. Check for error toast (`.MuiAlert-message`)
-10. If error: retry row (up to `maxRetries` times, default 2)
-11. If success or max retries exhausted: record outcome and continue to next row
-12. Save checkpoint to `progress.json`, append to `progress.log`
+9. Read toast message (`.MuiAlert-message` text)
+10. **Success:** If message matches `successToastRegExp` (default: contains "successfully") → record success
+11. **Failure:** If message does not match success:
+    - Match against `failureReasons` array to classify (category, details, `retryOnFail`)
+    - If `retryOnFail` is true and retries remain → retry
+    - Else → record failure with category and details, continue to next row
+12. **Unrecognized:** If no failure reason matches → append to `unrecognized-failures.log`, record as failure, no retry
+13. Save checkpoint to `progress.json`, append to `progress.log`
 
 ### 3.4 Error Handling
 
-- **Error detection:** Presence of `.MuiAlert-message` in DOM indicates Save failed
-- **Retries:** Configurable `maxRetries` (default 2) per row before skipping
-- **Failed rows:** Recorded in `progress.json` with row index, Load Record, Item Number, and try count
-- **Validation failures:** Some items may have incomplete or invalid data; Save fails → retry → skip after max tries
+- **Success detection:** Toast message matches `config.successToastRegExp` (default `/successfully/i`)
+- **Failure detection:** Toast message does not match success; matched against `config.failureReasons` array
+- **Failure reason objects:** Each has `category`, `failureReasonRegExp`, `failureDetailsRegExp`, `retryOnFail`
+  - `retryOnFail: true` → retry up to `maxRetries`; `retryOnFail: false` → no retry, move on
+- **Unrecognized failures:** Logged to `unrecognized-failures.log` for later config expansion
+- **Failed rows:** Recorded in `progress.json` with `rowIndex`, `loadRecord`, `itemNumber`, `category`, `details`
 
 ### 3.5 Checkpoint and Resume
 
 - **progress.json:** Machine-readable checkpoint
   - `lastCompletedRowIndex` – last row processed (success or skip)
-  - `failedRows` – list of rows that exhausted retries
+  - `failedRows` – list of rows with `rowIndex`, `loadRecord`, `itemNumber`, `category`, `details`
   - `lastUpdated` – timestamp
-- **progress.log:** Human-readable log of each row outcome
+- **progress.log:** Human-readable log of each row outcome (success or failure with category/details)
+- **unrecognized-failures.log:** Toast messages that did not match any known failure reason
 - **Resume:** If `progress.json` exists, start from `lastCompletedRowIndex + 1`
 - **Fresh start:** Delete `progress.json` to begin from row 0
-- **Files:** Both in `.gitignore`
+- **Files:** All three in `.gitignore`
 
 ### 3.6 Graceful Interruption
 
@@ -116,6 +123,7 @@ For each row:
 ├── rows-to-update-and-save.csv # Full data (~25k rows)
 ├── progress.json              # Gitignored checkpoint
 ├── progress.log               # Gitignored log
+├── unrecognized-failures.log  # Gitignored; unrecognized toast messages
 ├── README.md
 ├── docs/
 │   ├── GETTING_STARTED.md     # Setup and usage guide
@@ -138,9 +146,11 @@ Config supports two formats:
 | ------ | ------- | ----------- |
 | `timeout` | 30000 | General action timeout (ms) |
 | `networkIdleWait` | 2000 | Extra wait after network idle (ms) |
-| `postSaveWait` | 5000 | Wait before error toast check (ms) |
+| `postSaveWait` | 5000 | Wait before toast check (ms) |
 | `mfaWaitTimeout` | 120000 | Max wait for MFA completion (ms) |
-| `maxRetries` | 2 | Retries per row when Save fails |
+| `maxRetries` | 2 | Max retries when `retryOnFail` is true |
+| `successToastRegExp` | `/successfully/i` | Toast message matches = Save succeeded |
+| `failureReasons` | see config.js | Array of `{ category, failureReasonRegExp, failureDetailsRegExp, retryOnFail }` |
 
 ### 5.5 CLI Arguments
 
@@ -162,7 +172,7 @@ Config supports two formats:
 ## 6. Assumptions
 
 - CSV contains only items that exist in the database
-- Error toast uses `.MuiAlert-message` class (MUI)
+- Toast (success or failure) uses `.MuiAlert-message` class (MUI)
 - Price field can be edited to trigger dirty state for Save
 - Microsoft OAuth redirects to app after successful MFA
 - Session persists for duration of run (no mid-session re-auth)
