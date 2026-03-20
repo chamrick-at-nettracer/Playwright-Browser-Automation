@@ -41,7 +41,7 @@ export const config = {
     },
     {
       category: "condition not selected",
-      failureReasonRegExp: /^Please select a condition: /,
+      failureReasonRegExp: /^Please select a condition/,
       failureDetailsRegExp: null,
       retryOnFail: false,
     },
