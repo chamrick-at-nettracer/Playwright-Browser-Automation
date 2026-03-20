@@ -30,7 +30,6 @@ This product automates a browser to process items from a CSV file. For each row,
 ### 3.1 CSV Input
 
 - **Required columns:** `Load Record`, `Item Number`
-- **Optional columns:** Internal ID, Barcode, Price (present in full dataset but not used by automation)
 - **Source:** `rows-to-update-and-save.csv` (default) or user-specified via `--csv`
 - **Format:** Standard CSV with comma delimiter, first row as headers
 - **Note:** All items in the CSV are assumed to exist in the database
