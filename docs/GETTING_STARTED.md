@@ -86,7 +86,7 @@ The automation uses selectors defined in **`config.js`**. These are pre-configur
 
 The Price field uses an MUI-generated ID that may change; re-run codegen if it breaks.
 
-**To add new failure categories:** Check `unrecognized-failures.log` for toast messages that weren't recognized. Add a new entry to `config.failureReasons` with `category`, `failureReasonRegExp`, `failureDetailsRegExp` (with a capture group for details), and `retryOnFail` (true/false).
+**To add new failure categories:** Check `logs/unrecognized-failures.log` for toast messages that weren't recognized. Add a new entry to `config.failureReasons` with `category`, `failureReasonRegExp`, `failureDetailsRegExp` (with a capture group for details), and `retryOnFail` (true/false).
 
 ---
 
@@ -98,7 +98,7 @@ Process only the first few rows to verify everything works:
 npm run test:sample
 ```
 
-This processes 5 rows from `sample-data.csv` (ignores `progress.json`). You can change the limit:
+This processes 5 rows from `sample-data.csv` (ignores `logs/progress.json`). You can change the limit:
 
 ```bash
 node run-automation.js --csv rows-to-update-and-save.csv --limit 10
@@ -126,7 +126,7 @@ To limit rows (useful for debugging):
 node run-automation.js --csv rows-to-update-and-save.csv --limit 100
 ```
 
-**Resume:** If `progress.json` exists, the script resumes from the last completed row. Delete `progress.json` to start from row 0.
+**Resume:** If `logs/progress.json` exists, the script resumes from the last completed row. Delete `logs/progress.json` to start from row 0.
 
 **Graceful stop:** Press **Ctrl+C** to request a stop. The current row will complete (including retries), then the script exits.
 
@@ -143,12 +143,12 @@ For each row in the CSV, the script:
 5. Waits for the page to finish loading (network idle + short buffer)
 6. Makes a trivial change to the Price field (+$0.01, then restores the original)
 7. Clicks **Save**
-8. Waits 5 seconds and reads the toast message (`.MuiAlert-message`)
+8. Polls for toast every 1 second (first check at 1s) up to `postSaveWait` (default 10s), then reads the message
 9. **Success:** If message contains "successfully" (or matches `successToastRegExp`) → record success
 10. **Failure:** If message does not match success, classifies by `failureReasons` in config:
     - **Recognized:** Logs category and details; retries only if `retryOnFail` is true
-    - **Unrecognized:** Appends to `unrecognized-failures.log` for later review; no retry
-11. Saves progress to `progress.json` and appends to `progress.log`
+    - **Unrecognized:** Appends to `logs/unrecognized-failures.log` for later review; no retry
+11. Saves progress to `logs/progress.json` and appends to `logs/progress.log`
 
 By default, the browser runs in **headed** mode (you see it). To run in the background, change `headless: false` to `headless: true` in `run-automation.js`.
 
@@ -156,11 +156,15 @@ By default, the browser runs in **headed** mode (you see it). To run in the back
 
 ## Resume and Progress
 
-- **progress.json** – Checkpoint for resuming. Contains `lastCompletedRowIndex` and `failedRows` (with category and details).
-- **progress.log** – Human-readable log of each row's outcome (success or failure with reason).
-- **unrecognized-failures.log** – Toast messages that didn't match any known failure reason. Review to add new `failureReasons` entries to `config.js`.
-- **Resume:** Leave `progress.json` in place to pick up where you left off.
-- **Fresh start:** Delete `progress.json` to begin from row 0.
+All log files are in the `logs/` subfolder:
+
+- **logs/progress.json** – Checkpoint for resuming. Contains `lastCompletedRowIndex` and `failedRows` (with category and details).
+- **logs/progress.log** – Human-readable log of each row's outcome (success or failure with reason).
+- **logs/unrecognized-failures.log** – Toast messages that didn't match any known failure reason. Review to add new `failureReasons` entries to `config.js`.
+- **Resume:** Leave `logs/progress.json` in place to pick up where you left off.
+- **Fresh start:** Delete `logs/progress.json` to begin from row 0.
+
+**Note:** If you had log files in the project root, they are copied to `logs/` on first run. You can delete the old root-level files after verifying the migration.
 - **Graceful stop:** Press **Ctrl+C**. The current row completes (with retries if needed), then the script exits.
 
 ---
@@ -169,7 +173,7 @@ By default, the browser runs in **headed** mode (you see it). To run in the back
 
 - Consider `headless: true` to reduce resource use.
 - Run during off‑peak hours.
-- Use Ctrl+C to pause; resume later by running `npm start` again (with `progress.json` intact).
+- Use Ctrl+C to pause; resume later by running `npm start` again (with `logs/progress.json` intact).
 
 ---
 
@@ -183,7 +187,7 @@ By default, the browser runs in **headed** mode (you see it). To run in the back
 | Login / MFA fails | Check `emailInput`, `nextButton` in `config.js`; ensure MFA completes within `mfaWaitTimeout` |
 | Save doesn’t work | Verify `saveButton` and `priceField` selectors |
 | Page rerenders too fast/slow | Adjust `networkIdleWait` in `config.js` |
-| Wrong failure category | Add or adjust `failureReasons` in `config.js`; check `unrecognized-failures.log` |
+| Wrong failure category | Add or adjust `failureReasons` in `config.js`; check `logs/unrecognized-failures.log` |
 
 ---
 

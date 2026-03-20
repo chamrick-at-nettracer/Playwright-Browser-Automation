@@ -32,9 +32,9 @@ yarn-error.log*
 credentials.json
 
 # progress tracking (resume/restart)
-progress.json
-progress.log
-unrecognized-failures.log
+logs/progress.json
+logs/progress.log
+logs/unrecognized-failures.log
 
 # vercel
 .vercel

@@ -2,13 +2,18 @@
 
 Use this document to record the steps of a plan we agree on before implementation. Each item becomes a checklist entry in [COMPLETED_CHANGES.md](./COMPLETED_CHANGES.md).
 
+**Conventions (avoid markdownlint MD024):**
+
+- Use **ODBC-style dates** (e.g. `2026-03-20 7:33 PM`), not month/year (e.g. "March 2025").
+- For recurring headings (Overview, Checklist, Step 1, etc.), append ` for [ODBC date]` to make each unique (e.g. `### Overview for 2026-03-20 7:33 PM`, `### Checklist for 2026-03-20 7:33 PM`).
+
 ---
 
 ## Template for New Plans
 
 When we agree on a plan, add a section below with a date and checklist:
 
-### [Date] Plan: [Title]
+### [ODBC Date, e.g. 2026-03-20 7:33 PM] Plan: [Title]
 
 - [ ] Step 1: ...
 - [ ] Step 2: ...
@@ -16,15 +21,15 @@ When we agree on a plan, add a section below with a date and checklist:
 
 ---
 
-## March 2025 Plan: Toast-Based Success/Failure Detection with Categorized Failures (IMPLEMENTED)
+## 2026-03-15 2:00 PM Plan: Toast-Based Success/Failure Detection with Categorized Failures (IMPLEMENTED)
 
-### Overview
+### Overview for 2026-03-15 2:00 PM
 
 Replace the current binary "error toast visible = failure" logic with content-aware detection: use RegExps to distinguish success messages from failure messages, categorize failures by reason, control retries per category, and log unrecognized failures for future config expansion.
 
 ---
 
-### Step 1: Add config for success and failure detection
+### Step 1 for 2026-03-15 2:00 PM: Add config for success and failure detection
 
 **File:** `config.js`
 
@@ -50,7 +55,7 @@ Initial `failureReasons` entry:
 
 ---
 
-### Step 2: Add `getToastMessage()` helper
+### Step 2 for 2026-03-15 2:00 PM: Add `getToastMessage()` helper
 
 **File:** `run-automation.js`
 
@@ -61,7 +66,7 @@ Replace `hasErrorToast(page)` with `getToastMessage(page)` that:
 
 ---
 
-### Step 3: Add `classifyToastResult(message)` helper
+### Step 3 for 2026-03-15 2:00 PM: Add `classifyToastResult(message)` helper
 
 **File:** `run-automation.js`
 
@@ -77,7 +82,7 @@ Given a toast message string:
 
 ---
 
-### Step 4: Add `logUnrecognizedFailure()` helper
+### Step 4 for 2026-03-15 2:00 PM: Add `logUnrecognizedFailure()` helper
 
 **File:** `run-automation.js`
 
@@ -86,7 +91,7 @@ Given a toast message string:
 
 ---
 
-### Step 5: Refactor `processRow()` retry and result logic
+### Step 5 for 2026-03-15 2:00 PM: Refactor `processRow()` retry and result logic
 
 **File:** `run-automation.js`
 
@@ -102,7 +107,7 @@ Given a toast message string:
 
 ---
 
-### Step 6: Update failure logging in `main()` and progress
+### Step 6 for 2026-03-15 2:00 PM: Update failure logging in `main()` and progress
 
 **File:** `run-automation.js`
 
@@ -112,7 +117,7 @@ Given a toast message string:
 
 ---
 
-### Step 7: Add `unrecognized-failures.log` to `.gitignore`
+### Step 7 for 2026-03-15 2:00 PM: Add `unrecognized-failures.log` to `.gitignore`
 
 **File:** `.gitignore`
 
@@ -120,7 +125,7 @@ Ensure `unrecognized-failures.log` is listed so it isn’t committed.
 
 ---
 
-### Step 8: Update docs
+### Step 8 for 2026-03-15 2:00 PM: Update docs
 
 **Files:** `docs/PRD.md`, `docs/GETTING_STARTED.md`
 
@@ -129,22 +134,37 @@ Ensure `unrecognized-failures.log` is listed so it isn’t committed.
 
 ---
 
-### Step 9: Add entry to `docs/COMPLETED_CHANGES.md`
+### Step 9 for 2026-03-15 2:00 PM: Add entry to `docs/COMPLETED_CHANGES.md`
 
 - Copy this plan’s checklist into `COMPLETED_CHANGES.md` as unchecked items; check them off as each step is implemented.
 
 ---
 
-## March 2025 Plan: Poll for Form or Login Page Arrival (IMPLEMENTED)
+## 2026-03-17 3:30 PM Plan: Poll for Form or Login Page Arrival (IMPLEMENTED)
 
-### Overview
+### Overview for 2026-03-17 3:30 PM
 
 Replace the URL-based check with element-based polling. After navigating, wait 2 seconds, then check if the form (Load Number / Item Number) or login page (email field) is visible. If neither, wait 2 more seconds and retry, up to 5 times. Exit with error if never arrived. Avoids check-too-soon and wait-10-sec-when-already-on-form issues.
 
-### Checklist
+### Checklist for 2026-03-17 3:30 PM
 
 - [x] Step 1: Add arrivalCheckIntervalMs and arrivalCheckMaxAttempts to config
 - [x] Step 2: Implement waitForFormOrLogin(page) returning form, login, or throwing
 - [x] Step 3: Refactor doOneAttempt to use it; simplify maybeLogin
 - [x] Step 4: Add config comments for timeout, networkIdleWait, postSaveWait
 - [x] Step 5: Update PRD and COMPLETED_CHANGES
+
+---
+
+## 2026-03-20 7:33 PM Plan: Logs Folder + Toast Polling (IMPLEMENTED)
+
+### Overview for 2026-03-20 7:33 PM
+
+1. Move progress.json, progress.log, unrecognized-failures.log into logs/ subfolder
+2. Poll for toast every 1s (first check at 1s) until postSaveWait; reduces false "no toast" when API is slow
+
+### Checklist for 2026-03-20 7:33 PM
+
+- [x] Step 1: Create logs dir, update paths, ensure dir exists, migrate old files
+- [x] Step 2: Implement toast polling (Option B)
+- [x] Step 3: Update .gitignore and docs

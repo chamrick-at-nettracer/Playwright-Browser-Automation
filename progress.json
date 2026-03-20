@@ -1,0 +1,94 @@
+{
+  "lastCompletedRowIndex": 10,
+  "failedRows": [
+    {
+      "rowIndex": 0,
+      "loadRecord": "9272960",
+      "itemNumber": "1",
+      "category": "missing or invalid required fields",
+      "details": "Brand",
+      "tries": 1
+    },
+    {
+      "rowIndex": 1,
+      "loadRecord": "9232356",
+      "itemNumber": "3809",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 2,
+      "loadRecord": "9252202",
+      "itemNumber": "137531",
+      "category": "missing or invalid required fields",
+      "details": "Brand, Material, Shipping Weight",
+      "tries": 1
+    },
+    {
+      "rowIndex": 3,
+      "loadRecord": "9252202",
+      "itemNumber": "137653",
+      "category": "missing or invalid required fields",
+      "details": "Brand, Material, Shipping Weight",
+      "tries": 1
+    },
+    {
+      "rowIndex": 4,
+      "loadRecord": "9252543",
+      "itemNumber": "208362",
+      "category": "missing or invalid required fields",
+      "details": "Brand, Material, Shipping Weight",
+      "tries": 1
+    },
+    {
+      "rowIndex": 5,
+      "loadRecord": "9252043",
+      "itemNumber": "52684",
+      "category": "missing or invalid required fields",
+      "details": "Shipping Weight",
+      "tries": 1
+    },
+    {
+      "rowIndex": 6,
+      "loadRecord": "9262475",
+      "itemNumber": "52282",
+      "category": "missing or invalid required fields",
+      "details": "Shipping Weight",
+      "tries": 1
+    },
+    {
+      "rowIndex": 7,
+      "loadRecord": "9272960",
+      "itemNumber": "2",
+      "category": "unrecognized",
+      "details": "(no toast)",
+      "tries": 1
+    },
+    {
+      "rowIndex": 8,
+      "loadRecord": "9252041",
+      "itemNumber": "52738",
+      "category": "missing or invalid required fields",
+      "details": "Brand, Material, Shipping Weight",
+      "tries": 1
+    },
+    {
+      "rowIndex": 9,
+      "loadRecord": "9252202",
+      "itemNumber": "137512",
+      "category": "missing or invalid required fields",
+      "details": "Brand, Material, Shipping Weight",
+      "tries": 1
+    },
+    {
+      "rowIndex": 10,
+      "loadRecord": "9252202",
+      "itemNumber": "137537",
+      "category": "missing or invalid required fields",
+      "details": "Brand, Material, Shipping Weight",
+      "tries": 1
+    }
+  ],
+  "lastUpdated": "2026-03-20T23:20:20.586Z"
+}

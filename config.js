@@ -30,8 +30,8 @@ export const config = {
   // Extra wait (ms) after network goes idle — lets the UI finish updating before we interact
   networkIdleWait: 2000,
 
-  // Wait (ms) after clicking Save before reading the toast message — lets the toast appear
-  postSaveWait: 2000,
+  // Max wait (ms) for toast after Save — poll every 1s (first check at 1s); only "no toast" if timeout
+  postSaveWait: 10000,
 
   // Polling to detect form vs login: wait this long between each check
   arrivalCheckIntervalMs: 2000,

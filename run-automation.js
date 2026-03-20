@@ -9,26 +9,28 @@
  * - Makes a trivial change (price +1 cent, then back) to enable Save
  * - Clicks Save
  * - Reads toast message; success = matches successToastRegExp, failure = categorized by failureReasons
- * - Retries only when retryOnFail is true; unrecognized failures go to unrecognized-failures.log
+ * - Retries only when retryOnFail is true; unrecognized failures go to logs/unrecognized-failures.log
  * - Saves checkpoint after each row for resume support
  *
  * Press Ctrl+C to gracefully stop after the current row completes.
  *
  * Usage:
- *   npm start                    # Process all rows (resumes if progress.json exists)
- *   npm run test:sample          # Process first 5 rows only (ignores progress.json)
+ *   npm start                    # Process all rows (resumes if logs/progress.json exists)
+ *   npm run test:sample          # Process first 5 rows only (ignores logs/progress.json)
  *   node run-automation.js --csv rows-to-update-and-save.csv
  *   node run-automation.js --csv rows-to-update-and-save.csv --limit 10
  *
- * Resume: Leave progress.json in place to resume from last completed row.
- * Fresh start: Delete progress.json to begin from row 0.
+ * Resume: Leave logs/progress.json in place to resume from last completed row.
+ * Fresh start: Delete logs/progress.json to begin from row 0.
  */
 
 import { chromium } from 'playwright';
 import { parse } from 'csv-parse/sync';
-import { readFileSync, writeFileSync, existsSync, appendFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync, copyFileSync } from 'fs';
 import { resolve } from 'path';
 import { config } from './config.js';
+
+const LOGS_DIR = resolve(process.cwd(), 'logs');
 
 // --- Parse CLI args ---
 const args = process.argv.slice(2);
@@ -45,9 +47,21 @@ process.on('SIGINT', () => {
 });
 
 // --- Paths ---
-const PROGRESS_JSON = resolve(process.cwd(), 'progress.json');
-const PROGRESS_LOG = resolve(process.cwd(), 'progress.log');
-const UNRECOGNIZED_FAILURES_LOG = resolve(process.cwd(), 'unrecognized-failures.log');
+const PROGRESS_JSON = resolve(LOGS_DIR, 'progress.json');
+const PROGRESS_LOG = resolve(LOGS_DIR, 'progress.log');
+const UNRECOGNIZED_FAILURES_LOG = resolve(LOGS_DIR, 'unrecognized-failures.log');
+
+function ensureLogsDir() {
+  if (!existsSync(LOGS_DIR)) mkdirSync(LOGS_DIR, { recursive: true });
+
+  // One-time migration: copy old root-level log files into logs/ if they exist
+  const oldProgress = resolve(process.cwd(), 'progress.json');
+  const oldLog = resolve(process.cwd(), 'progress.log');
+  const oldUnrec = resolve(process.cwd(), 'unrecognized-failures.log');
+  if (existsSync(oldProgress) && !existsSync(PROGRESS_JSON)) copyFileSync(oldProgress, PROGRESS_JSON);
+  if (existsSync(oldLog) && !existsSync(PROGRESS_LOG)) copyFileSync(oldLog, PROGRESS_LOG);
+  if (existsSync(oldUnrec) && !existsSync(UNRECOGNIZED_FAILURES_LOG)) copyFileSync(oldUnrec, UNRECOGNIZED_FAILURES_LOG);
+}
 
 function loadProgress() {
   if (!existsSync(PROGRESS_JSON)) return null;
@@ -90,6 +104,7 @@ const csvText = readFileSync(csvFullPath, 'utf-8');
 const allRows = parse(csvText, { columns: true, skip_empty_lines: true });
 
 // --- Determine rows to process ---
+ensureLogsDir(); // Create logs/, migrate old root-level files if needed
 let startIndex = 0;
 let progress = rowLimit ? null : loadProgress();
 if (progress && !rowLimit) {
@@ -279,8 +294,16 @@ async function doOneAttempt(page, row, index) {
   await loc(page, config.selectors.saveButton).click();
   await page.waitForLoadState('networkidle', { timeout: config.timeout }).catch(() => {});
 
-  // Wait for error toast check
-  await new Promise((r) => setTimeout(r, config.postSaveWait));
+  // Poll for toast every 1s (first check at 1s) until postSaveWait — API can be slow
+  const postSaveMs = config.postSaveWait ?? 10000;
+  const pollIntervalMs = 1000;
+  let elapsed = 0;
+  while (elapsed < postSaveMs) {
+    await new Promise((r) => setTimeout(r, pollIntervalMs));
+    elapsed += pollIntervalMs;
+    const toast = loc(page, config.selectors.errorToast);
+    if (await toast.isVisible().catch(() => false)) break;
+  }
 }
 
 async function processRow(page, row, globalIndex) {
@@ -397,7 +420,7 @@ async function main() {
 
   console.log('Done.');
   if (progressData.failedRows?.length) {
-    console.log(`Failed rows (see progress.json): ${progressData.failedRows.length}`);
+    console.log(`Failed rows (see logs/progress.json): ${progressData.failedRows.length}`);
   }
 }
 

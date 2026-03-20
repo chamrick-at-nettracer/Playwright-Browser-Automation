@@ -3,7 +3,7 @@
 ## Playwright Browser Automation
 
 **Version:** 1.0
-**Last updated:** March 2025
+**Last updated:** 2026-03-20 7:33 PM
 
 ---
 
@@ -64,8 +64,8 @@ For each row:
     - Match against `failureReasons` array to classify (category, details, `retryOnFail`)
     - If `retryOnFail` is true and retries remain → retry
     - Else → record failure with category and details, continue to next row
-12. **Unrecognized:** If no failure reason matches → append to `unrecognized-failures.log`, record as failure, no retry
-13. Save checkpoint to `progress.json`, append to `progress.log`
+12. **Unrecognized:** If no failure reason matches → append to `logs/unrecognized-failures.log`, record as failure, no retry
+13. Save checkpoint to `logs/progress.json`, append to `logs/progress.log`
 
 ### 3.4 Error Handling
 
@@ -73,20 +73,21 @@ For each row:
 - **Failure detection:** Toast message does not match success; matched against `config.failureReasons` array
 - **Failure reason objects:** Each has `category`, `failureReasonRegExp`, `failureDetailsRegExp`, `retryOnFail`
   - `retryOnFail: true` → retry up to `maxRetries`; `retryOnFail: false` → no retry, move on
-- **Unrecognized failures:** Logged to `unrecognized-failures.log` for later config expansion
-- **Failed rows:** Recorded in `progress.json` with `rowIndex`, `loadRecord`, `itemNumber`, `category`, `details`
+- **Unrecognized failures:** Logged to `logs/unrecognized-failures.log` for later config expansion
+- **Failed rows:** Recorded in `logs/progress.json` with `rowIndex`, `loadRecord`, `itemNumber`, `category`, `details`
+- **Toast polling:** After Save, poll for toast every 1s (first check at 1s) until `postSaveWait`; reduces false "no toast" when API is slow
 
 ### 3.5 Checkpoint and Resume
 
-- **progress.json:** Machine-readable checkpoint
+- **logs/progress.json:** Machine-readable checkpoint
   - `lastCompletedRowIndex` – last row processed (success or skip)
   - `failedRows` – list of rows with `rowIndex`, `loadRecord`, `itemNumber`, `category`, `details`
   - `lastUpdated` – timestamp
-- **progress.log:** Human-readable log of each row outcome (success or failure with category/details)
-- **unrecognized-failures.log:** Toast messages that did not match any known failure reason
-- **Resume:** If `progress.json` exists, start from `lastCompletedRowIndex + 1`
-- **Fresh start:** Delete `progress.json` to begin from row 0
-- **Files:** All three in `.gitignore`
+- **logs/progress.log:** Human-readable log of each row outcome (success or failure with category/details)
+- **logs/unrecognized-failures.log:** Toast messages that did not match any known failure reason
+- **Resume:** If `logs/progress.json` exists, start from `lastCompletedRowIndex + 1`
+- **Fresh start:** Delete `logs/progress.json` to begin from row 0
+- **Files:** All three in `logs/` (gitignored)
 
 ### 3.6 Graceful Interruption
 
@@ -124,9 +125,10 @@ For each row:
 ├── credentials.json           # Gitignored
 ├── sample-data.csv            # Test data (5 rows)
 ├── rows-to-update-and-save.csv # Full data (~25k rows)
-├── progress.json              # Gitignored checkpoint
-├── progress.log               # Gitignored log
-├── unrecognized-failures.log  # Gitignored; unrecognized toast messages
+├── logs/
+│   ├── progress.json              # Gitignored checkpoint
+│   ├── progress.log               # Gitignored log
+│   └── unrecognized-failures.log  # Gitignored; unrecognized toast messages
 ├── README.md
 ├── docs/
 │   ├── GETTING_STARTED.md     # Setup and usage guide
@@ -149,7 +151,7 @@ Config supports two formats:
 | ------ | ------- | ----------- |
 | `timeout` | 10000 | Max wait (ms) for goto, element visibility, network idle |
 | `networkIdleWait` | 2000 | Extra wait (ms) after network idle — lets UI finish updating |
-| `postSaveWait` | 2000 | Wait (ms) after Save before reading toast — lets toast appear |
+| `postSaveWait` | 10000 | Max wait (ms) for toast after Save — poll every 1s (first at 1s) until toast or timeout |
 | `arrivalCheckIntervalMs` | 2000 | Poll interval (ms) when waiting for form or login |
 | `arrivalCheckMaxAttempts` | 5 | Max polls before giving up on arrival detection |
 | `mfaWaitTimeout` | 120000 | Max wait for MFA completion (ms) |
@@ -162,7 +164,7 @@ Config supports two formats:
 | Argument | Description |
 | -------- | ----------- |
 | `--csv &lt;path&gt;` | CSV file path (default: rows-to-update-and-save.csv) |
-| `--limit &lt;n&gt;` | Process only first n rows; ignores progress.json |
+| `--limit &lt;n&gt;` | Process only first n rows; ignores logs/progress.json |
 
 ### 5.6 npm Scripts
 

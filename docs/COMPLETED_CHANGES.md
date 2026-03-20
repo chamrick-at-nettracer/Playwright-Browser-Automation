@@ -2,9 +2,11 @@
 
 Check off items here as we implement planned changes. Copy the checklist from [PLANNED_CHANGES.md](./PLANNED_CHANGES.md) when starting a new plan.
 
+**Conventions:** Use ODBC-style dates (e.g. `2026-03-20 7:33 PM`), not month/year. See PLANNED_CHANGES for heading uniqueness rules (MD024).
+
 ---
 
-## Initial Implementation (March 2025)
+## Initial Implementation (2026-03-10 9:00 AM)
 
 These items reflect the state of the product as of the first release.
 
@@ -21,7 +23,7 @@ These items reflect the state of the product as of the first release.
 
 ---
 
-## March 2025: Toast-Based Success/Failure Detection
+## 2026-03-15 2:00 PM: Toast-Based Success/Failure Detection
 
 - [x] Step 1: Add config for successToastRegExp and failureReasons
 - [x] Step 2: Add getToastMessage() helper
@@ -35,13 +37,21 @@ These items reflect the state of the product as of the first release.
 
 ---
 
-## March 2025: Poll for Form or Login Page Arrival
+## 2026-03-17 3:30 PM: Poll for Form or Login Page Arrival
 
 - [x] Step 1: Add arrivalCheckIntervalMs and arrivalCheckMaxAttempts to config
 - [x] Step 2: Implement waitForFormOrLogin(page) returning form, login, or throwing
 - [x] Step 3: Refactor doOneAttempt to use it; simplify maybeLogin
 - [x] Step 4: Add config comments for timeout, networkIdleWait, postSaveWait
 - [x] Step 5: Update PRD and COMPLETED_CHANGES
+
+---
+
+## 2026-03-20 7:33 PM: Logs Folder + Toast Polling
+
+- [x] Step 1: Create logs dir, update paths, ensure dir exists, migrate old files
+- [x] Step 2: Implement toast polling (Option B: first check at 1s)
+- [x] Step 3: Update .gitignore and docs
 
 ---
 
