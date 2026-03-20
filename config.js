@@ -24,9 +24,9 @@ export const config = {
     errorToast: { css: ".MuiAlert-message" },
   },
 
-  timeout: 20000,
+  timeout: 10000,
   networkIdleWait: 2000,
-  postSaveWait: 3000,
+  postSaveWait: 2000,
   mfaWaitTimeout: 120000, // 2 min to complete Authenticator on phone
   maxRetries: 3, // Max retries per row when Save fails and retryOnFail is true
 
