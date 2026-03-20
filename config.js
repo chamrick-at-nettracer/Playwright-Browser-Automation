@@ -20,9 +20,13 @@ export const config = {
 
     // Save button
     saveButton: 'button:has-text("Save"), input[type="submit"][value="Save"], [data-action="save"]',
+
+    // Error toast (MUI Alert) - if visible after Save, indicates failure
+    errorToast: '.MuiAlert-message',
   },
 
   // Timeouts (milliseconds)
   timeout: 30000,
   networkIdleWait: 2000, // Extra wait after network idle
+  postSaveWait: 5000, // Wait after Save before checking for error toast
 };

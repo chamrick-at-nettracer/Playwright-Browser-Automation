@@ -59,15 +59,15 @@ This installs Chromium. You can also run `npx playwright install` to install all
 
 ## Step 4: Prepare Your CSV File
 
-Your CSV must have columns **`Load Record`** and **`Item Num`**. Example:
+Your CSV must have columns **`Load Record`** and **`Item Number`**. Example:
 
 ```csv
-Load Record,Item Num
+Load Record,Item Number
 LR-001,1001
 LR-002,1002
 ```
 
-Use `sample-data.csv` for initial testing, or create your own file (e.g. `my-data.csv`).
+Use `sample-data.csv` for initial testing. The full data file is `rows-to-update-and-save.csv`.
 
 ---
 
@@ -96,10 +96,10 @@ Process only the first few rows to verify everything works:
 npm run test:sample
 ```
 
-This runs with 5 rows. You can change the limit:
+This processes 5 rows from `sample-data.csv` (ignores `progress.json`). You can change the limit:
 
 ```bash
-node run-automation.js --limit 10
+node run-automation.js --csv rows-to-update-and-save.csv --limit 10
 ```
 
 ---
@@ -112,7 +112,7 @@ When you’re confident the script works:
 npm start
 ```
 
-To use a specific CSV file:
+By default this uses `rows-to-update-and-save.csv`. To use a different CSV:
 
 ```bash
 node run-automation.js --csv my-data.csv
@@ -121,8 +121,12 @@ node run-automation.js --csv my-data.csv
 To limit rows (useful for debugging):
 
 ```bash
-node run-automation.js --csv my-data.csv --limit 100
+node run-automation.js --csv rows-to-update-and-save.csv --limit 100
 ```
+
+**Resume:** If `progress.json` exists, the script resumes from the last completed row. Delete `progress.json` to start from row 0.
+
+**Graceful stop:** Press **Ctrl+C** to request a stop. The current row will complete (including retries), then the script exits.
 
 ---
 
@@ -133,23 +137,34 @@ For each row in the CSV, the script:
 1. Opens your app URL
 2. Logs in if a login form is present
 3. Enters **Load Record** in the first field and presses Tab
-4. Enters **Item Num** in the next field and presses Enter
+4. Enters **Item Number** in the next field and presses Enter
 5. Waits for the page to finish loading (network idle + short buffer)
 6. Makes a trivial change to the Price field (+$0.01, then restores the original)
 7. Clicks **Save**
+8. Waits 5 seconds and checks for an error toast (`.MuiAlert-message`)
+9. If error detected: retries the row (up to 5 tries)
+10. If 5 tries exhausted: records the row in `progress.json` as failed and continues
+11. Saves progress to `progress.json` and appends to `progress.log`
 
 By default, the browser runs in **headed** mode (you see it). To run in the background, change `headless: false` to `headless: true` in `run-automation.js`.
 
 ---
 
+## Resume and Progress
+
+- **progress.json** – Checkpoint for resuming. Contains `lastCompletedRowIndex` and `failedRows`.
+- **progress.log** – Human-readable log of each row's outcome (success or failure).
+- **Resume:** Leave `progress.json` in place to pick up where you left off.
+- **Fresh start:** Delete `progress.json` to begin from row 0.
+- **Graceful stop:** Press **Ctrl+C**. The current row completes (with retries if needed), then the script exits.
+
+---
+
 ## Handling ~25,000 Rows
 
-For large runs:
-
 - Consider `headless: true` to reduce resource use.
-- Add retries or error handling for flaky network or page issues.
-- Optionally add checkpoints: log progress and support resuming from a given row.
 - Run during off‑peak hours.
+- Use Ctrl+C to pause; resume later by running `npm start` again (with `progress.json` intact).
 
 ---
 

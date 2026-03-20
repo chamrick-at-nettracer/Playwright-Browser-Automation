@@ -31,6 +31,10 @@ yarn-error.log*
 # credentials (never commit real credentials)
 credentials.json
 
+# progress tracking (resume/restart)
+progress.json
+progress.log
+
 # vercel
 .vercel
 
