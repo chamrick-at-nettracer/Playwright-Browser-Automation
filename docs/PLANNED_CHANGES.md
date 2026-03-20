@@ -132,3 +132,19 @@ Ensure `unrecognized-failures.log` is listed so it isn’t committed.
 ### Step 9: Add entry to `docs/COMPLETED_CHANGES.md`
 
 - Copy this plan’s checklist into `COMPLETED_CHANGES.md` as unchecked items; check them off as each step is implemented.
+
+---
+
+## March 2025 Plan: Poll for Form or Login Page Arrival (IMPLEMENTED)
+
+### Overview
+
+Replace the URL-based check with element-based polling. After navigating, wait 2 seconds, then check if the form (Load Number / Item Number) or login page (email field) is visible. If neither, wait 2 more seconds and retry, up to 5 times. Exit with error if never arrived. Avoids check-too-soon and wait-10-sec-when-already-on-form issues.
+
+### Checklist
+
+- [x] Step 1: Add arrivalCheckIntervalMs and arrivalCheckMaxAttempts to config
+- [x] Step 2: Implement waitForFormOrLogin(page) returning form, login, or throwing
+- [x] Step 3: Refactor doOneAttempt to use it; simplify maybeLogin
+- [x] Step 4: Add config comments for timeout, networkIdleWait, postSaveWait
+- [x] Step 5: Update PRD and COMPLETED_CHANGES

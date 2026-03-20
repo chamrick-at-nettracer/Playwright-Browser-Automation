@@ -48,13 +48,16 @@ This product automates a browser to process items from a CSV file. For each row,
 For each row:
 
 1. Navigate to app URL
-2. Detect and complete login if presented (email, Next, wait for MFA, then continue)
+2. **Arrival detection:** Poll every 2 seconds (up to 5 attempts) for either:
+   - **Form:** Load Number / Item Number fields visible → proceed to step 4
+   - **Login:** Email input visible → run login (email, Next, MFA), then proceed
+   - **Neither:** After 5 attempts → exit with "Couldn't pull up either form or login page; exiting."
 3. Enter **Load Record** in Load Number field, press Tab
 4. Enter **Item Number** in Item Number field, press Enter
 5. Wait for page to finish loading/rerendering (network idle + buffer)
 6. Make trivial change to **Price** field: add $0.01, then restore original value
 7. Click **Save**
-8. Wait 5 seconds
+8. Wait for toast (`postSaveWait` ms)
 9. Read toast message (`.MuiAlert-message` text)
 10. **Success:** If message matches `successToastRegExp` (default: contains "successfully") → record success
 11. **Failure:** If message does not match success:
@@ -144,9 +147,11 @@ Config supports two formats:
 
 | Option | Default | Description |
 | ------ | ------- | ----------- |
-| `timeout` | 30000 | General action timeout (ms) |
-| `networkIdleWait` | 2000 | Extra wait after network idle (ms) |
-| `postSaveWait` | 5000 | Wait before toast check (ms) |
+| `timeout` | 10000 | Max wait (ms) for goto, element visibility, network idle |
+| `networkIdleWait` | 2000 | Extra wait (ms) after network idle — lets UI finish updating |
+| `postSaveWait` | 2000 | Wait (ms) after Save before reading toast — lets toast appear |
+| `arrivalCheckIntervalMs` | 2000 | Poll interval (ms) when waiting for form or login |
+| `arrivalCheckMaxAttempts` | 5 | Max polls before giving up on arrival detection |
 | `mfaWaitTimeout` | 120000 | Max wait for MFA completion (ms) |
 | `maxRetries` | 2 | Max retries when `retryOnFail` is true |
 | `successToastRegExp` | `/successfully/i` | Toast message matches = Save succeeded |

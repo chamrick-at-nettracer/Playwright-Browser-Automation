@@ -137,7 +137,7 @@ node run-automation.js --csv rows-to-update-and-save.csv --limit 100
 For each row in the CSV, the script:
 
 1. Opens your app URL
-2. Logs in if a login form is present
+2. Polls every 2 seconds (up to 5 times) for form or login; if login, logs in; if neither after 5 attempts, exits with error
 3. Enters **Load Record** in the first field and presses Tab
 4. Enters **Item Number** in the next field and presses Enter
 5. Waits for the page to finish loading (network idle + short buffer)

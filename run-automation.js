@@ -125,16 +125,40 @@ function getItemNumber(row) {
   return row['Item Number']?.trim() || row['Item Num']?.trim();
 }
 
-async function maybeLogin(page) {
-  // Wait for redirect to Microsoft login; if no redirect, skip login
-  try {
-    await page.waitForURL(/login\.microsoftonline\.com/, { timeout: 10000 });
-  } catch {
-    return; // Not on Microsoft – already logged in or different flow
+/**
+ * Poll until we detect either the app form or the login page.
+ * Returns 'form' or 'login'. Throws if neither appears after max attempts.
+ */
+async function waitForFormOrLogin(page) {
+  const interval = config.arrivalCheckIntervalMs ?? 2000;
+  const maxAttempts = config.arrivalCheckMaxAttempts ?? 5;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await new Promise((r) => setTimeout(r, interval));
+
+    const loadNumberField = loc(page, config.selectors.loadRecordInput);
+    if (await loadNumberField.isVisible().catch(() => false)) {
+      return 'form';
+    }
+
+    const emailSelectors = Array.isArray(config.selectors.emailInput)
+      ? config.selectors.emailInput
+      : [config.selectors.emailInput];
+    for (const sel of emailSelectors) {
+      const el = loc(page, sel);
+      if (await el.isVisible().catch(() => false)) {
+        return 'login';
+      }
+    }
   }
 
-  await new Promise((r) => setTimeout(r, 2000)); // Let the form render
+  throw new Error("Couldn't pull up either form or login page; exiting.");
+}
 
+/**
+ * Assumes we're on the Microsoft login page. Fills email, clicks Next, waits for MFA.
+ */
+async function maybeLogin(page) {
   const emailSelectors = Array.isArray(config.selectors.emailInput)
     ? config.selectors.emailInput
     : [config.selectors.emailInput];
@@ -218,9 +242,12 @@ async function doOneAttempt(page, row, index) {
     throw new Error('Missing Load Record or Item Number');
   }
 
-  // Ensure we're on the right page
+  // Navigate, then poll until we arrive at form or login
   await page.goto(credentials.url, { waitUntil: 'load', timeout: config.timeout });
-  await maybeLogin(page);
+  const arrival = await waitForFormOrLogin(page);
+  if (arrival === 'login') {
+    await maybeLogin(page);
+  }
 
   // Enter Load Record
   const firstInput = loc(page, config.selectors.loadRecordInput);

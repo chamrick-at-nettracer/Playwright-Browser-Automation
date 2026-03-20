@@ -24,9 +24,19 @@ export const config = {
     errorToast: { css: ".MuiAlert-message" },
   },
 
+  // Max wait (ms) for: page navigation (goto), element visibility (waitFor), network idle
   timeout: 10000,
+
+  // Extra wait (ms) after network goes idle — lets the UI finish updating before we interact
   networkIdleWait: 2000,
+
+  // Wait (ms) after clicking Save before reading the toast message — lets the toast appear
   postSaveWait: 2000,
+
+  // Polling to detect form vs login: wait this long between each check
+  arrivalCheckIntervalMs: 2000,
+  // Max polling attempts before giving up (total wait up to interval × attempts)
+  arrivalCheckMaxAttempts: 5,
   mfaWaitTimeout: 120000, // 2 min to complete Authenticator on phone
   maxRetries: 3, // Max retries per row when Save fails and retryOnFail is true
 

@@ -35,6 +35,16 @@ These items reflect the state of the product as of the first release.
 
 ---
 
+## March 2025: Poll for Form or Login Page Arrival
+
+- [x] Step 1: Add arrivalCheckIntervalMs and arrivalCheckMaxAttempts to config
+- [x] Step 2: Implement waitForFormOrLogin(page) returning form, login, or throwing
+- [x] Step 3: Refactor doOneAttempt to use it; simplify maybeLogin
+- [x] Step 4: Add config comments for timeout, networkIdleWait, postSaveWait
+- [x] Step 5: Update PRD and COMPLETED_CHANGES
+
+---
+
 ## Future Completed Changes
 
 _Add checkmarks here as we complete items from PLANNED_CHANGES.md._
