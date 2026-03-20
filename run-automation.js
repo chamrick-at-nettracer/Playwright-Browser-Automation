@@ -187,7 +187,7 @@ function classifyToastResult(message) {
       ? r.failureReasonRegExp
       : new RegExp(r.failureReasonRegExp);
     if (reasonRegex.test(str)) {
-      let details = str;
+      let details = '';
       if (r.failureDetailsRegExp) {
         const detailsRegex = r.failureDetailsRegExp instanceof RegExp
           ? r.failureDetailsRegExp
@@ -348,7 +348,7 @@ async function main() {
         const category = result.category ?? 'unknown';
         const details = result.details ?? '';
         appendLog(
-          `Row ${globalIndex + 1}: FAILED (${category}) ${details} [Load Record ${row['Load Record']}, Item ${getItemNumber(row)}]`
+          `Row ${globalIndex + 1}: FAILED (${category})${details ? ` ${details}` : ''} [Load Record ${row['Load Record']}, Item ${getItemNumber(row)}]`
         );
         progressData.failedRows = progressData.failedRows || [];
         progressData.failedRows.push({

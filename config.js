@@ -39,6 +39,12 @@ export const config = {
       failureDetailsRegExp: /^Please fix the following fields: (.+)$/,
       retryOnFail: false,
     },
+    {
+      category: "condition not selected",
+      failureReasonRegExp: /^Please select a condition: /,
+      failureDetailsRegExp: null,
+      retryOnFail: false,
+    },
     // Add more failure categories here as discovered
   ],
 };
