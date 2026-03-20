@@ -1,0 +1,15 @@
+{
+  "name": "playwright-browser-automation",
+  "version": "1.0.0",
+  "description": "Automates browser changes using Load Record and Item Num from CSV",
+  "type": "module",
+  "scripts": {
+    "start": "node run-automation.js",
+    "test:sample": "node run-automation.js --limit 5",
+    "install:browsers": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "csv-parse": "^5.6.0",
+    "playwright": "^1.49.0"
+  }
+}

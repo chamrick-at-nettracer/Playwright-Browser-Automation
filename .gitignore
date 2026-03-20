@@ -28,6 +28,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# credentials (never commit real credentials)
+credentials.json
+
 # vercel
 .vercel
 
