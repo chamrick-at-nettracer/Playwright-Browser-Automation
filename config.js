@@ -55,6 +55,12 @@ export const config = {
       failureDetailsRegExp: null,
       retryOnFail: false,
     },
+    {
+      category: "failed to save item data",
+      failureReasonRegExp: /^Failed to save item data/,
+      failureDetailsRegExp: null,
+      retryOnFail: true,
+    },
     // Add more failure categories here as discovered
   ],
 };
