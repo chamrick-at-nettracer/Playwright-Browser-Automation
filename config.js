@@ -56,6 +56,12 @@ export const config = {
       retryOnFail: false,
     },
     {
+      category: "invalid values for checkbox attributes",
+      failureReasonRegExp: /^Invalid values for checkbox attributes: /,
+      failureDetailsRegExp: /^Invalid values for checkbox attributes: (.+)$/,
+      retryOnFail: false,
+    },
+    {
       category: "failed to save item data",
       failureReasonRegExp: /^Failed to save item data/,
       failureDetailsRegExp: null,
