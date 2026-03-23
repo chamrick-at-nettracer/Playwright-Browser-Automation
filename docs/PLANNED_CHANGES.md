@@ -168,3 +168,19 @@ Replace the URL-based check with element-based polling. After navigating, wait 2
 - [x] Step 1: Create logs dir, update paths, ensure dir exists, migrate old files
 - [x] Step 2: Implement toast polling (Option B)
 - [x] Step 3: Update .gitignore and docs
+
+---
+
+## 2026-03-22 8:01 PM Plan: Condition Field Short-Circuit (IMPLEMENTED)
+
+### Overview for 2026-03-22 8:01 PM
+
+When the Condition Attribute Field exists and is empty, skip the Price change and Save click; treat the row as "condition not selected" failure immediately. Saves ~1.5–2s per row (no API call, no toast wait).
+
+### Checklist for 2026-03-22 8:01 PM
+
+- [x] Step 1: Add conditionField config to config.js
+- [x] Step 2: Implement isConditionEmpty(page) helper
+- [x] Step 3: Add short-circuit logic in doOneAttempt (after wait for load, before Price change)
+- [x] Step 4: Update processRow to handle short-circuit result
+- [x] Step 5: Update PRD, GETTING_STARTED, PLANNED_CHANGES, COMPLETED_CHANGES

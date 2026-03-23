@@ -3,7 +3,7 @@
 ## Playwright Browser Automation
 
 **Version:** 1.0
-**Last updated:** 2026-03-20 7:33 PM
+**Last updated:** 2026-03-22 8:01 PM
 
 ---
 
@@ -55,17 +55,18 @@ For each row:
 3. Enter **Load Record** in Load Number field, press Tab
 4. Enter **Item Number** in Item Number field, press Enter
 5. Wait for page to finish loading/rerendering (network idle + buffer)
-6. Make trivial change to **Price** field: add $0.01, then restore original value
-7. Click **Save**
-8. Wait for toast (`postSaveWait` ms)
-9. Read toast message (`.MuiAlert-message` text)
-10. **Success:** If message matches `successToastRegExp` (default: contains "successfully") → record success
-11. **Failure:** If message does not match success:
+6. **Condition check (optional):** If `config.conditionField` is set and the Condition Attribute Field exists and is empty → short-circuit: treat as "condition not selected" failure, skip steps 7–9, proceed to result handling (step 11)
+7. Make trivial change to **Price** field: add $0.01, then restore original value
+8. Click **Save**
+9. Wait for toast (`postSaveWait` ms)
+10. Read toast message (`.MuiAlert-message` text)
+11. **Success:** If message matches `successToastRegExp` (default: contains "successfully") → record success
+12. **Failure:** If message does not match success:
     - Match against `failureReasons` array to classify (category, details, `retryOnFail`)
     - If `retryOnFail` is true and retries remain → retry
     - Else → record failure with category and details, continue to next row
-12. **Unrecognized:** If no failure reason matches → append to `logs/unrecognized-failures.log`, record as failure, no retry
-13. Save checkpoint to `logs/progress.json`, append to `logs/progress.log`
+13. **Unrecognized:** If no failure reason matches → append to `logs/unrecognized-failures.log`, record as failure, no retry
+14. Save checkpoint to `logs/progress.json`, append to `logs/progress.log`
 
 ### 3.4 Error Handling
 
@@ -158,6 +159,7 @@ Config supports two formats:
 | `maxRetries` | 2 | Max retries when `retryOnFail` is true |
 | `successToastRegExp` | `/successfully/i` | Toast message matches = Save succeeded |
 | `failureReasons` | see config.js | Array of `{ category, failureReasonRegExp, failureDetailsRegExp, retryOnFail }` |
+| `conditionField` | `{ selector: { role: 'combobox', name: 'Condition' } }` | Optional: if set, check Condition field before Save; if empty, short-circuit as "condition not selected" (~1.5–2s saved per row) |
 
 ### 5.5 CLI Arguments
 

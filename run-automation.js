@@ -6,8 +6,8 @@
  * - Opens the app URL, logs in if needed
  * - Enters Load Record, Tab, Item Number, Enter
  * - Waits for page to finish loading/rerendering
- * - Makes a trivial change (price +1 cent, then back) to enable Save
- * - Clicks Save
+ * - If Condition field exists and is empty → short-circuit: skip Save, treat as "condition not selected" failure
+ * - Otherwise: makes trivial change (price +1 cent, then back) to enable Save, clicks Save
  * - Reads toast message; success = matches successToastRegExp, failure = categorized by failureReasons
  * - Retries only when retryOnFail is true; unrecognized failures go to logs/unrecognized-failures.log
  * - Saves checkpoint after each row for resume support
@@ -250,6 +250,23 @@ function logUnrecognizedFailure(row, globalIndex, message) {
   appendFileSync(UNRECOGNIZED_FAILURES_LOG, line, 'utf-8');
 }
 
+/**
+ * Check if Condition field exists and is empty. Used to short-circuit Save when we know it will fail.
+ * @param {import('playwright').Page} page
+ * @returns {Promise<boolean|null>} true = empty (short-circuit), false = filled, null = field not found
+ */
+async function isConditionEmpty(page) {
+  const cfg = config.conditionField;
+  if (!cfg?.selector) return null;
+
+  const condLoc = loc(page, cfg.selector);
+  if (!(await condLoc.isVisible().catch(() => false))) return null;
+
+  const value = await condLoc.inputValue().catch(() => null);
+  if (value == null) return null;
+  return !value.trim();
+}
+
 async function doOneAttempt(page, row, index) {
   const loadRecord = row['Load Record']?.trim();
   const itemNumber = getItemNumber(row);
@@ -279,6 +296,20 @@ async function doOneAttempt(page, row, index) {
   // Wait for page to finish rerendering
   await page.waitForLoadState('networkidle', { timeout: config.timeout }).catch(() => {});
   await new Promise((r) => setTimeout(r, config.networkIdleWait));
+
+  // Short-circuit: if Condition field exists and is empty, skip Save
+  const empty = await isConditionEmpty(page);
+  if (empty === true) {
+    return {
+      shortCircuited: true,
+      result: {
+        type: 'failure',
+        category: 'condition not selected',
+        details: '',
+        retryOnFail: false,
+      },
+    };
+  }
 
   // Make trivial change to Price
   const priceLoc = loc(page, config.selectors.priceField);
@@ -320,9 +351,14 @@ async function processRow(page, row, globalIndex) {
   while (true) {
     tryNum++;
     try {
-      await doOneAttempt(page, row, globalIndex);
-      const message = await getToastMessage(page);
-      const result = classifyToastResult(message);
+      const doResult = await doOneAttempt(page, row, globalIndex);
+      let result;
+      if (doResult?.shortCircuited && doResult.result) {
+        result = doResult.result;
+      } else {
+        const message = await getToastMessage(page);
+        result = classifyToastResult(message);
+      }
 
       if (result.type === 'success') {
         return { success: true };

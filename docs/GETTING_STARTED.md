@@ -88,6 +88,8 @@ The Price field uses an MUI-generated ID that may change; re-run codegen if it b
 
 **To add new failure categories:** Check `logs/unrecognized-failures.log` for toast messages that weren't recognized. Add a new entry to `config.failureReasons` with `category`, `failureReasonRegExp`, `failureDetailsRegExp` (with a capture group for details), and `retryOnFail` (true/false).
 
+**Condition short-circuit:** If most items have a required "Condition" Attribute Field, the script checks it before Save. When empty, it skips the Save click and toast wait (~1.5–2s saved per row). Configure via `config.conditionField`; set to `null` or remove to disable.
+
 ---
 
 ## Step 6: Test With a Few Rows First
@@ -141,14 +143,15 @@ For each row in the CSV, the script:
 3. Enters **Load Record** in the first field and presses Tab
 4. Enters **Item Number** in the next field and presses Enter
 5. Waits for the page to finish loading (network idle + short buffer)
-6. Makes a trivial change to the Price field (+$0.01, then restores the original)
-7. Clicks **Save**
-8. Polls for toast every 1 second (first check at 1s) up to `postSaveWait` (default 10s), then reads the message
-9. **Success:** If message contains "successfully" (or matches `successToastRegExp`) → record success
-10. **Failure:** If message does not match success, classifies by `failureReasons` in config:
+6. If the **Condition** Attribute Field exists and is empty → short-circuits: skips Save and toast, treats as "condition not selected" failure (~1.5–2s saved per row)
+7. Otherwise: makes a trivial change to the Price field (+$0.01, then restores the original)
+8. Clicks **Save**
+9. Polls for toast every 1 second (first check at 1s) up to `postSaveWait` (default 10s), then reads the message
+10. **Success:** If message contains "successfully" (or matches `successToastRegExp`) → record success
+11. **Failure:** If message does not match success, classifies by `failureReasons` in config:
     - **Recognized:** Logs category and details; retries only if `retryOnFail` is true
     - **Unrecognized:** Appends to `logs/unrecognized-failures.log` for later review; no retry
-11. Saves progress to `logs/progress.json` and appends to `logs/progress.log`
+12. Saves progress to `logs/progress.json` and appends to `logs/progress.log`
 
 By default, the browser runs in **headed** mode (you see it). To run in the background, change `headless: false` to `headless: true` in `run-automation.js`.
 

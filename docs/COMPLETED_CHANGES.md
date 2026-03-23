@@ -55,6 +55,16 @@ These items reflect the state of the product as of the first release.
 
 ---
 
+## 2026-03-22 8:01 PM: Condition Field Short-Circuit
+
+- [x] Step 1: Add conditionField config to config.js
+- [x] Step 2: Implement isConditionEmpty(page) helper
+- [x] Step 3: Add short-circuit logic in doOneAttempt (after wait for load, before Price change)
+- [x] Step 4: Update processRow to handle short-circuit result
+- [x] Step 5: Update PRD, GETTING_STARTED, PLANNED_CHANGES, COMPLETED_CHANGES
+
+---
+
 ## Future Completed Changes
 
 _Add checkmarks here as we complete items from PLANNED_CHANGES.md._

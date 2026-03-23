@@ -24,6 +24,11 @@ export const config = {
     errorToast: { css: ".MuiAlert-message" },
   },
 
+  // Optional: short-circuit Save when Condition Attribute Field exists and is empty (~1.5–2s saved per row)
+  conditionField: {
+    selector: { role: "combobox", name: "Condition" },
+  },
+
   // Max wait (ms) for: page navigation (goto), element visibility (waitFor), network idle
   timeout: 10000,
 
