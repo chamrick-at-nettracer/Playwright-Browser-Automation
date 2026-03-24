@@ -1,0 +1,366 @@
+{
+  "lastCompletedRowIndex": 44,
+  "failedRows": [
+    {
+      "rowIndex": 0,
+      "loadRecord": "9222452",
+      "itemNumber": "2546",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 1,
+      "loadRecord": "921113",
+      "itemNumber": "120457",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 2,
+      "loadRecord": "9232470",
+      "itemNumber": "5594",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 3,
+      "loadRecord": "9232464",
+      "itemNumber": "7640",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 4,
+      "loadRecord": "9241218",
+      "itemNumber": "3067",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 5,
+      "loadRecord": "9242543",
+      "itemNumber": "101333",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 6,
+      "loadRecord": "9242027",
+      "itemNumber": "415",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 7,
+      "loadRecord": "9241246",
+      "itemNumber": "11361",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 8,
+      "loadRecord": "9252248",
+      "itemNumber": "368",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 9,
+      "loadRecord": "9241512",
+      "itemNumber": "46089",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 10,
+      "loadRecord": "9242402",
+      "itemNumber": "9527",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 11,
+      "loadRecord": "9242544",
+      "itemNumber": "13497",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 12,
+      "loadRecord": "9251512",
+      "itemNumber": "1109",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 13,
+      "loadRecord": "9252211",
+      "itemNumber": "6020",
+      "category": "unrecognized",
+      "details": "No attributes found for this category",
+      "tries": 1
+    },
+    {
+      "rowIndex": 14,
+      "loadRecord": "9252211",
+      "itemNumber": "6717",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 15,
+      "loadRecord": "9251195",
+      "itemNumber": "8149",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 16,
+      "loadRecord": "9251195",
+      "itemNumber": "8153",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 17,
+      "loadRecord": "9251195",
+      "itemNumber": "8323",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 18,
+      "loadRecord": "9251195",
+      "itemNumber": "12727",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 19,
+      "loadRecord": "9251512",
+      "itemNumber": "2030",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 20,
+      "loadRecord": "9251195",
+      "itemNumber": "16985",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 21,
+      "loadRecord": "9251195",
+      "itemNumber": "16993",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 22,
+      "loadRecord": "9251195",
+      "itemNumber": "16999",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 23,
+      "loadRecord": "9251195",
+      "itemNumber": "17171",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 24,
+      "loadRecord": "9251195",
+      "itemNumber": "17629",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 25,
+      "loadRecord": "9251195",
+      "itemNumber": "17687",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 26,
+      "loadRecord": "9251195",
+      "itemNumber": "17786",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 27,
+      "loadRecord": "9251211",
+      "itemNumber": "2528",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 28,
+      "loadRecord": "9251211",
+      "itemNumber": "3186",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 29,
+      "loadRecord": "9251211",
+      "itemNumber": "3935",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 30,
+      "loadRecord": "9251977",
+      "itemNumber": "226",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 31,
+      "loadRecord": "9252435",
+      "itemNumber": "5662",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 32,
+      "loadRecord": "9252046",
+      "itemNumber": "1430",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 33,
+      "loadRecord": "9252376",
+      "itemNumber": "1335",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 34,
+      "loadRecord": "9252423",
+      "itemNumber": "3301",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 35,
+      "loadRecord": "9251243",
+      "itemNumber": "3195",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 36,
+      "loadRecord": "9251243",
+      "itemNumber": "4528",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 37,
+      "loadRecord": "9251243",
+      "itemNumber": "4555",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 38,
+      "loadRecord": "9251243",
+      "itemNumber": "4687",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 39,
+      "loadRecord": "9253102",
+      "itemNumber": "48431",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 40,
+      "loadRecord": "9253102",
+      "itemNumber": "48540",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 41,
+      "loadRecord": "9252033",
+      "itemNumber": "10520",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 42,
+      "loadRecord": "9252046",
+      "itemNumber": "2893",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 43,
+      "loadRecord": "9252320",
+      "itemNumber": "1942",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    },
+    {
+      "rowIndex": 44,
+      "loadRecord": "9252248",
+      "itemNumber": "15612",
+      "category": "condition not selected",
+      "details": "",
+      "tries": 1
+    }
+  ],
+  "lastUpdated": "2026-03-24T16:09:30.588Z"
+}
